@@ -1,0 +1,16 @@
+# Java
+*.class
+*.jar
+
+# idea
+.idea
+
+# DS
+.DS_Store
+
+# Gradle
+.gradle
+\!gradle-wrapper.jar
+
+# Build
+build

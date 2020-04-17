@@ -82,7 +82,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\PoolSim_java-1.0-SNAPSHOT.jar;%APP_HOME%\lib\jackson-databind-2.10.2.jar;%APP_HOME%\lib\jackson-annotations-2.10.2.jar;%APP_HOME%\lib\jackson-core-2.10.2.jar
+set CLASSPATH=%APP_HOME%\lib\PoolSim_java-1.0-SNAPSHOT.jar;%APP_HOME%\lib\jackson-databind-2.10.2.jar;%APP_HOME%\lib\jackson-annotations-2.10.2.jar;%APP_HOME%\lib\jackson-core-2.10.2.jar;%APP_HOME%\lib\log4j-core-2.13.1.jar;%APP_HOME%\lib\log4j-api-2.13.1.jar
 
 @rem Execute PoolSim_java
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %POOL_SIM_JAVA_OPTS%  -classpath "%CLASSPATH%" simulator.Main %CMD_LINE_ARGS%

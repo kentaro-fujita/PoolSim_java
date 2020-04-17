@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import event.BlockEvent;
 import event.Event;
 import event.EventQueue;
@@ -37,20 +40,32 @@ public class Simulator {
     private static ArrayList<BlockEvent> block_events = new ArrayList<BlockEvent>();
 
     private static ObjectMapper mapper = new ObjectMapper();
+    private static Logger logger = LogManager.getLogger(Simulator.class);
 
     public static String initialize() {
+        // mapper setting
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
+        // load config from config.json
         String config_json = readJsonAsString("dist/conf/config.json");
-
         JsonNode simulation_config = loadConfigFromJson(config_json);
 
         for (int i = 0; i < simulation_config.get("pools").size(); i++) {
             JsonNode pool_config = simulation_config.get("pools").get(i);
-
-            String pool_name = "pool" + (i+1);
+            
             long pool_difficulty = pool_config.get("difficulty").longValue();
+            if (pool_difficulty == 0) {
+                throw new IllegalArgumentException("pool difficulty should br greater than 0");
+            }
+            
+            // Get or generate pool name
+            String pool_name = null;
+            try {
+                pool_name = pool_config.get("name").toString();
+            } catch (Exception e) {
+                pool_name = "pool-" + (i+1);
+            }
 
             // Create pool and initialize pool
             MiningPool mining_pool = new MiningPool(pool_name, pool_difficulty, network, random);
@@ -80,11 +95,15 @@ public class Simulator {
     public static void run() {
         String result_filename = initialize();
 
+        logger.debug("loaded {} pools with a total of {} miners", pools.size(), miners.size());
+
         if (pools.isEmpty() || miners.isEmpty()) {
             throw new IllegalArgumentException("simulation must have at one miner and one pool");
         }
 
         scheduleAll();
+
+        logger.info("running {} blocks", blocks);
 
         while (network.getCurrent_block() < blocks) {
             Event event = queue.pop();
@@ -178,11 +197,11 @@ public class Simulator {
             network.incCurrent_block();
             long currentBlock = network.getCurrent_block();
             if (currentBlock % 10000 == 0) {
-                System.out.println("progress : "+currentBlock+"/"+blocks);
+                logger.info("progress : {} / {}", currentBlock, blocks);
             } 
-            // else if (currentBlock % 100 == 0) {
-            //     System.out.println("progress : "+currentBlock+"/"+blocks);
-            // }
+            else if (currentBlock % 100 == 0) {
+                logger.debug("progress : {} / {}", currentBlock, blocks);
+            }
             share_flags |= Share.Property.valid_block;
         }
         Share share = new Share(share_flags);
@@ -220,6 +239,7 @@ public class Simulator {
                 blocks = root.get("blocks").longValue();
                 network.setDifficulty(root.get("network_difficulty").longValue());
                 random.setSeed(root.get("seed").longValue());
+                logger.debug("initialized random with seed {}", root.get("seed").toString());
 
                 return root;
             } catch (IOException e) {
