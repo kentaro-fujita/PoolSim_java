@@ -63,4 +63,12 @@ public class BaseRewardScheme {
     public ObjectNode getMeta_data() {
         return block_meta_data;
     }
+
+    public ObjectNode get_miner_metadata(String miner_address) {
+        ObjectNode json = mapper.createObjectNode();
+        MinerRecord record = findRecord(miner_address);
+        json = mapper.valueToTree(record);
+        
+        return json;
+    }
 }

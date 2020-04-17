@@ -77,7 +77,7 @@ public class Simulator {
             String reward_scheme_type = pool_config.get("reward_scheme").get("type").toString().replaceAll("\"","");
             double pool_fee =  pool_config.get("reward_scheme").get("params").get("pool_fee").doubleValue();
             RewardScheme reward_scheme = new RewardScheme();
-            reward_scheme.create(reward_scheme_type, 10, mining_pool, pool_fee);
+            reward_scheme.create(reward_scheme_type, 200, mining_pool, pool_fee);
             mining_pool.setRewardScheme(reward_scheme);
             addPool(mining_pool);
 
@@ -88,6 +88,7 @@ public class Simulator {
             }
         }
 
+           
         String result_filename = simulation_config.get("output").toString().replace("\"", "");
         return result_filename;
     }
@@ -121,7 +122,7 @@ public class Simulator {
         double behavior_rate = 0;
         String behavior_type = miner_behavior.get("name").toString().replaceAll("\"","");
         if (behavior_type.equals("withholding")) {
-            isWithholding = true;
+            isWithholding = true; 
             behavior_rate = miner_behavior.get("params").get("rate").doubleValue();
         }
 
@@ -276,7 +277,12 @@ public class Simulator {
                 miner_records.add(miner.getMetaData());
             }
             ArrayNode miner_data = mapper.valueToTree(miner_records);
-            ArrayNode pool_data = mapper.valueToTree(pools);
+
+            ArrayList<ObjectNode> pool_records = new ArrayList<ObjectNode>();
+            for (MiningPool pool : pools) {
+                pool_records.add(pool.getMetaData());
+            }
+            ArrayNode pool_data = mapper.valueToTree(pool_records);
 
             try {
                 result_json.set("blocks", block_data);

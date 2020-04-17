@@ -4,6 +4,10 @@ import event.BlockEvent;
 import random.MyRandom;
 import network.Network;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 
 
@@ -16,9 +20,11 @@ public class MiningPool {
     private double uncle_prob = 0;
 
     private ArrayList<String> miners = new ArrayList<String>();
-    private RewardScheme reward_scheme = new RewardScheme();
+    private RewardScheme reward_scheme;
     private long total_shares_per_round = 0;
     private long blocks_mined = 0;
+
+    private static ObjectMapper mapper = new ObjectMapper();
 
     public MiningPool(String name, long difficulty, Network network, MyRandom random) {
         this.pool_name = name;
@@ -87,5 +93,25 @@ public class MiningPool {
         if (share.isValid_block()) {
             resetTotal_shares_per_round();
         }
+    }
+
+    public ArrayNode get_miners_metadata() {
+        ArrayNode result = mapper.createArrayNode();
+        for (String address : miners) {
+            ObjectNode miner = mapper.createObjectNode();
+            miner.put("address", address);
+            miner.put("metadata", this.reward_scheme.get_miner_metadata(address));
+            result.add(miner);
+        }
+        return result;
+    }
+
+    public ObjectNode getMetaData() {
+        ObjectNode pool_meta_data = mapper.createObjectNode();
+        pool_meta_data.put("name", getPool_name());
+        pool_meta_data.put("difficulty", getDifficulty());
+        pool_meta_data.put("reward_scheme", this.reward_scheme.getSchemeName());
+        pool_meta_data.put("miners", get_miners_metadata());
+        return pool_meta_data;
     }
 }

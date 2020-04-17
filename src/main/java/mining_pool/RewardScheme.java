@@ -5,6 +5,7 @@ import mining_pool.reward_scheme.PPLNSRewardScheme;
 import mining_pool.reward_scheme.PPSRewardScheme;
 import mining_pool.reward_scheme.ProportionalRewardScheme;
 
+import java.util.Map;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -56,20 +57,48 @@ public class RewardScheme {
     }
 
     public double getPoolLuck() {
-        if (this.scheme_type.equals("pps")) {
+        if (this.scheme_type.equals("proportional")) {
+            return this.pp_reward_scheme.getPoolLuck();
+        } else if (this.scheme_type.equals("pps")) {
             return this.pps_reward_scheme.getPoolLuck();
         } else if (this.scheme_type.equals("pplns")) {
-             return this.pplns_reward_scheme.getPoolLuck();
+            return this.pplns_reward_scheme.getPoolLuck();
         }
 
         return 0.0;
     }
 
+    public String getSchemeName() {
+        if (this.scheme_type.equals("proportional")) {
+            return this.pp_reward_scheme.getSchemeName();
+        } else if (this.scheme_type.equals("pps")) {
+            return this.pps_reward_scheme.getSchemeName();
+        } else if (this.scheme_type.equals("pplns")) {
+            return this.pplns_reward_scheme.getSchemeName();
+        }
+
+        return null;
+    }
+
+    public ObjectNode get_miner_metadata(String miner_address) {
+        if (this.scheme_type.equals("proportional")) {
+            return this.pp_reward_scheme.get_miner_metadata(miner_address);
+        } else if (this.scheme_type.equals("pps")) {
+            return this.pps_reward_scheme.get_miner_metadata(miner_address);
+        } else if (this.scheme_type.equals("pplns")) {
+            return this.pplns_reward_scheme.get_miner_metadata(miner_address);
+        }
+        
+        return null;
+    }
+
     public ObjectNode getMetaData() {
-        if (this.scheme_type.equals("pps")) {
+        if (this.scheme_type.equals("proportional")) {
+            return this.pp_reward_scheme.getMeta_data();
+        } else if (this.scheme_type.equals("pps")) {
             return this.pps_reward_scheme.getMeta_data();
         } else if (this.scheme_type.equals("pplns")) {
-             return this.pplns_reward_scheme.getMeta_data();
+            return this.pplns_reward_scheme.getMeta_data();
         }
 
         return null;
