@@ -2,6 +2,9 @@
 *.class
 *.jar
 
+# settings
+.settings
+
 # idea
 .idea
 
@@ -10,7 +13,7 @@
 
 # Gradle
 .gradle
-\!gradle-wrapper.jar
+!gradle-wrapper.jar
 
 # Build
 build
